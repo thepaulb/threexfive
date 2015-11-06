@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+ 	<meta charset="utf-8">
+ 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>THREEXFIVE</title>
+
+	<!-- Application styles. -->
+	<!-- build:[href] /styles.min.css -->
+	<link href='https://fonts.googleapis.com/css?family=Squada+One' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="assets/css/bootstrap.css">
+	<link rel="stylesheet" href="assets/css/index.css">
+	 <!-- /build -->
+	   
+	<script src="assets/libs/underscore.js" type="text/javascript"></script>
+	<script src="assets/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+	<script src="assets/libs/backbone.js" type="text/javascript"></script>	
+	<script src="assets/libs/backbone.localStorage.js" type="text/javascript"></script>
+	<script src="assets/libs/chart.js"></script>	
+	<script src="assets/libs/slideout.js"></script>
+	<script src="src/js/main.js" type="text/javascript"></script>
+	<script src="src/js/application.js" type="text/javascript"></script>
+</head>
+
+<body>
+	<div >
+	  <!-- Application container. -->
+		
+		<!--Left Side Menu Navigation bar -->
+		<div id="menu">
+			<nav>
+				<ul class="list">
+					<li><a href="" class="icon home">Home</a></li>
+					<li><a href="#settings" class="icon heart">Settings</a></li>
+					<li><a href="#exercises" class="icon chat">Exercises</a></li>
+					<li><a href="#workout" class="icon user">Workout</a></li>
+					<li><a href="#clear" class="icon user">Reset</a></li>
+				</ul>
+			</nav>
+		</div>
+		<div id="panel">
+			<header>
+			<a id="menubadge" class='menu-button toggle-button'>MENU</a>
+			<h1>THREEXFIVE</h1>
+			</header>
+		 	<main role="main" id="main"></main>
+		 </div>
+		  <!-- Application source. -->
+			  <!-- build:[src] /source.min.js -->
+		<!-- /build -->
+	</div>
+</body>
+</html>
