@@ -239,7 +239,7 @@ var UserSettingView = Backbone.View.extend({
 
 
 var ExerciseView = Backbone.View.extend({
-	className: "exercise-input-view sub-view",
+	className: "exercise-input-view sub-view clear",
 	events: {
 		"change input": "onchange"
 	},
@@ -259,7 +259,7 @@ var ExerciseListView = Backbone.View.extend({
 	events: {
 		"click button": "onclick"
 	},
-	template: _.template("<div class='edit'></div><div><button id='submit' class='btn btn-primary'>SUBMIT</button></div>"),
+	template: _.template("<div class='edit view'></div><div><button id='submit' class='btn btn-primary'>SUBMIT</button></div>"),
 	render: function() {
 		this.$el.html(this.template());
 		this.collection.forEach(_.bind(this.add, this))

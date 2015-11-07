@@ -224,8 +224,9 @@
 			    'padding': 256,
 			    'tolerance': 70
 			});
-			document.querySelector('.toggle-button').addEventListener('click', function() {
+			document.querySelector('.toggle-button').addEventListener('click', function(e) {
 		        slideout.toggle();
+		        e.preventDefault();
 		     });
 		});
 
