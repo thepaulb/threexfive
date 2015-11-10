@@ -1,6 +1,6 @@
 body {
 	margin: 0;
-	font-family: 'Squada One', helvetica;
+	font-family: 'Helvetica Neue';
 	background: black;
 	color: white;
 }
@@ -45,13 +45,15 @@ input[type=text] {
 }
 
 .menu-button {
-  margin: 0 10px;
+  margin: 0 8px;
   display: block;
-  line-height: 2.571;
+  line-height: 2.5882;
+  text-transform: uppercase;
+  font-size: 17px;
 }
 
 nav ul {
-  margin: 10px;
+  margin: 38px 10px 10px 10px;
   padding: 0;
 }
 
@@ -69,6 +71,11 @@ nav li {
    content: "";
    display: block; 
    clear: both;
+}
+
+h2 {
+  font-size: 18px;
+  margin: 10px 0;
 }
 
 /**********************************************************
@@ -89,7 +96,7 @@ header h1 {
     position: absolute;
     width: 45%;
     z-index: 1;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: bold;
     left: 27.5%;
     text-shadow: rgba(0,0,0,0.8) 0 -1px 0;
@@ -98,7 +105,8 @@ header h1 {
     text-overflow: ellipsis;
     overflow: hidden;
     margin: 0;
-    line-height: 2;
+    line-height: 2.5882;
+    font-weight: bold;
 } /* This is text that appears in the header at the top of the screen */
 
 /**********************************************************
@@ -163,3 +171,15 @@ main {
   width: 48%;
   line-height: 1.75;
 }
+
+.close-menu {
+  font-size: 30px;
+  font-weight: bold;
+  line-height: 18px;
+  color: #fff;
+  text-decoration: none;  
+  position: absolute;  
+  right: 8px;
+  top: 8px;
+}
+

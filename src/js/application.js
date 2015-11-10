@@ -29,14 +29,23 @@
 		};
 	
 		App.index = function() {
+			App.closeSlider();
 			// // console.log("index called");
 			$.when(App.fetchSets(), App.fetchWorkouts(), App.fetchExercises()).done(function index () {
 				// // console.log(new HistoryPresenter({sets: App.Collections.sets}));
 				// console.log(new HistoryPresenter({sets: App.Collections.sets}));
 				var options = {sets: App.Collections.sets, workouts: App.Collections.workouts, exercises: App.Collections.exercises};
-				$("#main").html(new HistoryListView({sets: new HistoryPresenter(options)}).render().el);
+				$("#main").html(new ChartListView({sets: new HistoryPresenter(options)}).render().el);
 			})
 		};
+
+		App.closeSlider = function(){
+			if(App.slideout && App.slideout.isOpen()) {
+				App.slideout.close();
+				return true;
+			}
+			return false;
+		}
 		
 		App.init = function() {
 			// // console.log("init called");
@@ -52,6 +61,7 @@
 		}
 		
 		App.exercises = function() {
+			App.closeSlider();
 			// // console.log("exercises called");
 			App.fetchExercises().then(function(){
 				var c = App.Collections.exercises;
@@ -84,6 +94,7 @@
 		};
 	
 		App.settings = function() {
+			App.closeSlider();
 			// // console.log("settings called");
 			App.fetchSettings().then(function(){
 				var c = App.Collections.settings;
@@ -162,6 +173,7 @@
 		}
 	
 		App.workout = function() {
+			App.closeSlider();
 			// bootstrap the app;
 			$.when(App.fetchExercises(), App.fetchSettings(), App.fetchUser(), App.fetchRoutines()).done(function () {
 				var C = App.Collections,
@@ -201,7 +213,7 @@
 				});
 				C.sets.add(sets);
 				var c = new WorkoutPresenter({sets: sets, exercises: C.exercises, settings: C.settings.at(0)});
-	      $("#main").html(new WorkoutView({collection: c}).render().el);
+	      		$("#main").html(new WorkoutView({collection: c}).render().el);
 			});
 		};
 	
@@ -218,14 +230,18 @@
 
 		$(document).ready(function(){
 			App.init();
-			var slideout = new Slideout({
+			App.slideout = new Slideout({
 			    'panel': document.getElementById('panel'),
 			    'menu':  document.getElementById('menu'),
 			    'padding': 256,
 			    'tolerance': 70
 			});
 			document.querySelector('.toggle-button').addEventListener('click', function(e) {
-		        slideout.toggle();
+		        App.slideout.toggle();
+		        e.preventDefault();
+		     });
+			document.querySelector('.close-menu').addEventListener('click', function(e) {
+		        App.slideout.close();
 		        e.preventDefault();
 		     });
 		});

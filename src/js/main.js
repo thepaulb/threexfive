@@ -277,25 +277,31 @@ var ExerciseListView = Backbone.View.extend({
 });
 
 
-var HistoryView = Backbone.View.extend({
-		template: _.template("<h2><%= label %></h2><canvas width='400' height='400'></canvas>"),
+var ChartView = Backbone.View.extend({
+		className: "chart-view sub-view clear",
+		template: _.template("<h2><%= label %></h2><canvas height='100'></canvas>"),
 		initialize: function(options) {
 			this.title = options.title;
 			this.data  = options.data;
 		},
 		render: function() {
-			this.$el.html(this.template({label: this.title}));
+			this.$el.html(this.template({label: this.title, width: this.getDimensions().w}));
 			setTimeout(_.bind(this.chart, this), 0);
 			return this;
 		},
 		chart: function(){
 			var ctx = this.$("canvas").get(0).getContext("2d");
-			new Chart(ctx).Line(this.data);
+			new Chart(ctx).Line(this.data, {bezierCurve: false, pointDotRadius : 2});
+		},
+		getDimensions: function() {
+			var w = $("main").width();
+			return { w: w - 20};
 		}
 });
 
 
-var HistoryListView = Backbone.View.extend({
+var ChartListView = Backbone.View.extend({
+	className: "chart-list-view view clear",
 	initialize: function(options) {
 		this.sets = options.sets;
 	},
@@ -307,7 +313,7 @@ var HistoryListView = Backbone.View.extend({
 		return this;
 	},
 	add: function(c, txt) {
-		this.$el.append(new HistoryView({collection: c, title: txt, data: new ChartPresenter(c)}).render().el);
+		this.$el.append(new ChartView({collection: c, title: txt, data: new ChartPresenter(c)}).render().el);
 	}
 });
 
