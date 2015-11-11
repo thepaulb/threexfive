@@ -175,7 +175,7 @@
 		App.workout = function() {
 			App.closeSlider();
 			// bootstrap the app;
-			$.when(App.fetchExercises(), App.fetchSettings(), App.fetchUser(), App.fetchRoutines()).done(function () {
+			$.when(App.fetchExercises(), App.fetchSettings(), App.fetchUser(), App.fetchRoutines(), App.fetchWorkouts()).done(function () {
 				var C = App.Collections,
 						now = new Date,
 						sets = [],
@@ -212,8 +212,13 @@
 					}
 				});
 				C.sets.add(sets);
-				var c = new WorkoutPresenter({sets: sets, exercises: C.exercises, settings: C.settings.at(0)});
-	      		$("#main").html(new WorkoutView({collection: c}).render().el);
+				var c = new WorkoutPresenter({sets: sets, exercises: C.exercises, settings: C.settings.at(0)}),
+					date,
+					workout,
+					workoutId = _.uniq(c.pluck("workoutId")).pop();
+				workout =C.workouts.findWhere({id: workoutId});
+				date = workout.get("date");
+	      		$("#main").html(new WorkoutView({collection: c, date: date, workout: workout}).render().el);
 			});
 		};
 	

@@ -49,7 +49,7 @@ input[type=text] {
   display: block;
   line-height: 2.5882;
   text-transform: uppercase;
-  font-size: 17px;
+  font-size: 18px;
 }
 
 nav ul {
@@ -75,7 +75,30 @@ nav li {
 
 h2 {
   font-size: 18px;
-  margin: 10px 0;
+  margin: 8px 0;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.workout-stat {
+  margin: 0;
+}
+
+.workout-stat__label,
+.workout-stat__data {
+  display: block;
+  margin: 0;
+}
+
+.workout-stat__label {
+  font-size: 8px;
+}
+
+.workout-stat__data {
+  font-size: 20px;
 }
 
 /**********************************************************
@@ -96,7 +119,7 @@ header h1 {
     position: absolute;
     width: 45%;
     z-index: 1;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: bold;
     left: 27.5%;
     text-shadow: rgba(0,0,0,0.8) 0 -1px 0;
