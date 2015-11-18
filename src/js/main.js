@@ -24,15 +24,6 @@ var Exercise = Backbone.Model.extend({
 		name: "",
 		description: "",
 		defaultReps: 0
-	},
-	initialize: function(){
-		this.listenTo(Backbone, 'workout:completed', _.bind(this.oncomplete, this));
-	},
-	oncomplete: function(e) {
-		var exercise = e.data.findWhere({"exerciseId": this.get("id")});
-		if (exercise) {
-			this.save({"weight": exercise.get("weight")});
-		}
 	}
 });
 
@@ -69,13 +60,15 @@ var Set = Backbone.Model.extend({
 		numberOfReps: 0
 	},
 	initialize: function(options){
-		this.exercises = options.exercises;
+		this.exercises 	= options.exercises;
 		this.listenTo(Backbone, 'workout:completed', _.bind(this.oncomplete, this));
 	},
 	oncomplete: function(e){
-		if (e.workoutId === this.get("workoutId")) {
+		// console.log(e.get("id") , this.get("workoutId"));
+		if (e.get("id") === this.get("workoutId")) {
 			var weight = this.exercises.findWhere({"id": this.get("exerciseId")}).get("weight");
-			this.save({"completed": true, "weight": weight});
+			// console.log("Set", weight);
+			this.save({"completed": true, "weight": weight, date: e.get("date")});
 		}
 	}
 });
@@ -185,18 +178,39 @@ var WorkoutEditView = Backbone.View.extend({
 var DatePickerView = Backbone.View.extend({
 	className: "date-input-view sub-view",
 	events: {
-		"click button": "onclick"
+		"click button": "onclick",
+		"change input": "onchange"
 	},
-	initialize: function(options) {
-		console.log(this.model);
-	},
-	template: _.template("<label>Date Completed</label><div class='date-input'><input type='text' value='DD'/><input type='text' value='MM'/><input type='text' value='YYYY'/></div><button id='submit' class='btn btn-primary'>Complete</button>"),
+	date: [],
+	template: _.template("<label>Date Completed</label><div class='date-input flex-container'><input data-type='day' type='text' value='<%= day %>'/><input data-type='month' type='text' value='<%= month %>'/><input data-type='year' type='text' value='<%= year %>'/></div><button id='submit' class='btn btn-primary'>UPDATE</button>"),
 	render: function() {
-		this.$el.html(this.template());
+		this.$el.html(this.template(this.model.toJSON()));
 		return this;
 	},
 	onclick: function(e) {
-		console.log(e);
+		// TODO need to validate date;
+		Backbone.trigger("date:changed", this.model);
+
+	},
+	onchange: function(e) {
+		// console.log(this.createDate());
+		this.model.set($(e.target).data('type'), parseInt(e.target.value));
+		this.model.set("date", this.createDate());
+		this.model.save();
+	},
+	createDate: function(){
+		return new Date([this.model.get("month"),this.model.get("day"),this.model.get("year")].join("/"));
+	}
+});
+
+var WorkoutCompleteView = Backbone.View.extend({
+	template: _.template("<div><a href='/#' id='workout-complete' class='btn btn-primary'>COMPLETED</a>"),
+	render: function() {
+		this.$el.html(this.template({date: this.date()}));
+		return this;
+	},
+	date: function(){
+		return format(new Date(this.model.get("date")), "DD/MM/YYYY");
 	}
 });
 
@@ -204,30 +218,30 @@ var DatePickerView = Backbone.View.extend({
 var WorkoutView = Backbone.View.extend({
 	className: "workout-view view",
 	current: 0,
-	template: _.template("<div><%= label %>: <%= sets %> x <%= defaultReps %></div><div class='orange giant'><%= weight %></div><span><%= units %></span><div class='edit'></div>"),
-	completeTemplate: _.template("<div><a href='/#' id='workout-complete' class='btn btn-primary'>COMPLETED</a> on <a href='/#workout' id='date-requestchange' class='btn btn-primary'><%= date %></a>"),
+	template: _.template("<div class='flex-container'><%= label %>: <%= sets %> x <%= defaultReps %><button id='date-requestchange' class='btn btn-primary'><%= date %></button></div><div class='edit-date'></div></div><div class='orange giant'><%= weight %></div><span><%= units %></span><div class='edit'></div>"),
 	events: {
-		"click #workout-complete": "complete",
-		"click #date-requestchange": "changeDate"
+		"click #workout-complete": 		"onWorkoutComplete",
+		"click #date-requestchange": 	"updateDate"
 	},
 	initialize: function(options) {
-		this.date 		= options.date;
-		this.workout 	= options.workout;
+		this.workout = options.workout;
 		this.listenTo(Backbone, 'exercise:completed', this.next);
+		this.listenTo(Backbone, 'date:changed', _.bind(this.onDateChange, this));
+
 	},
-	render: function(view) {
-		var m = this.collection.at(this.current);
-		switch (view) {
-			case "workout:changedate" :
-				this.$el.html(new DatePickerView({model: this.workout}).render().el);
+	render: function(subview) {
+		var d, exercise = this.collection.at(this.current);
+		console.log(exercise);
+		switch (subview) {
+			case "datepicker" :
+				this.$(".edit-date").html(new DatePickerView({model: this.workout}).render().el);
 				break;
-			case 'workout:complete':
-				var d = format(this.date, "DD/MM/YYYY");
-				this.$el.html(this.completeTemplate({date: d}));
+			case "completed":
+				this.$el.html(new WorkoutCompleteView({model: this.workout}).render().el);
 				break;
 			default:
-				this.$el.html(this.template(m.toJSON()));
-				this.$('.edit').html(new WorkoutEditView({model: m}).render().el);
+				this.$el.html(this.template(_.extend(exercise.toJSON(), {date: format(this.workout.get("date"), "DD/MM/YYYY")})));
+				this.$('.edit').html(new WorkoutEditView({model: exercise}).render().el);
 				break;
 		}
 		return this;
@@ -237,14 +251,18 @@ var WorkoutView = Backbone.View.extend({
 			this.current++;
 			this.render();
 		} else if (this.current + 1 === this.collection.length) {
-			this.render('workout:complete');
+			console.log(this.workout);
+			this.render('completed');
 		}
 	},
-	changeDate: function(){
-		this.render('workout:changedate');
+	updateDate: function(){
+		this.render('datepicker');
 	},
-	complete: function(){
-		Backbone.trigger("workout:completed", {"workoutId": _.uniq(this.collection.pluck("workoutId")).pop(), data: this.collection});
+	onDateChange: function(e){
+		this.render();
+	},
+	onWorkoutComplete: function(){
+		Backbone.trigger("workout:completed", this.workout);
 	}
 });
 
@@ -305,13 +323,13 @@ var ExerciseListView = Backbone.View.extend({
 });
 
 
-var KeyNumbersView = Backbone.View.extend({
-		className: "flex-container",
-		template: _.template("<dl class='workout-stat'><dt class='workout-stat__label'>1RPM</dt><dd class='workout-stat__data'><%= onerepmax %></dd></dl><dl class='workout-stat'><dt class='workout-stat__label'>TOTAL</dt><dd class='workout-stat__data'><%= total %></dd></dl><dl class='workout-stat'><dt class='workout-stat__label'>WEIGHT</dt><dd class='workout-stat__data'><%= current %></dd></dl>"),
-		render: function() {
-			this.$el.html(this.template(this.model.toJSON()));
-			return this;
-		}
+var StatsView = Backbone.View.extend({
+	className: "flex-container",
+	template: _.template("<dl class='workout-stat'><dt class='workout-stat__label'>1RPM</dt><dd class='workout-stat__data'><%= onerepmax %></dd></dl><dl class='workout-stat'><dt class='workout-stat__label'>TOTAL</dt><dd class='workout-stat__data'><%= total %></dd></dl><dl class='workout-stat'><dt class='workout-stat__label'>WEIGHT</dt><dd class='workout-stat__data'><%= current %></dd></dl>"),
+	render: function() {
+		this.$el.html(this.template(this.model.toJSON()));
+		return this;
+	}
 });
 
 
@@ -319,19 +337,19 @@ var ChartView = Backbone.View.extend({
 		className: "chart-view sub-view clear",
 		template: _.template("<h2><%= label %></h2><div class='workout-stats'></div><canvas height='100'></canvas>"),
 		initialize: function(options) {
+			Chart.defaults.global.scaleShowLabels = false;
 			this.title = options.title;
 			this.data  = options.data;
 		},
 		render: function() {
 			this.$el.html(this.template({label: this.title, width: this.getDimensions().w}));
 			setTimeout(_.bind(this.chart, this), 0);
-			var m = new KeyNumbersPresenter(this.collection);
-			this.$('.workout-stats').html(new KeyNumbersView({model: m}).render().el);
+			var m = new StatsPresenter(this.collection);
+			this.$('.workout-stats').html(new StatsView({model: m}).render().el);
 			return this;
 		},
 		chart: function(){
 			var ctx = this.$("canvas").get(0).getContext("2d");
-			Chart.defaults.global.scaleShowLabels = false;
 			new Chart(ctx).Line(this.data, {bezierCurve: false, pointDotRadius : 2});
 		},
 		getDimensions: function() {
@@ -478,7 +496,7 @@ WorkoutPresenter.prototype.mapAttrsById = function(id, options) {
 	});
 }
 
-var KeyNumbersPresenter = function(c) {
+var StatsPresenter = function(c) {
 	this.collection = c;
 	return new Backbone.Model({
 		onerepmax: 	this.get1RM(),
@@ -487,18 +505,18 @@ var KeyNumbersPresenter = function(c) {
 	});
 }
 
-KeyNumbersPresenter.prototype.getTotal = function() {
+StatsPresenter.prototype.getTotal = function() {
 	var a = this.collection.pluck("weight");
 	return _.reduce(a, function(memo, weight){
 		return memo + parseInt(weight);
 	});
 };
 
-KeyNumbersPresenter.prototype.getMaxWeight = function() {
+StatsPresenter.prototype.getMaxWeight = function() {
 	return Math.max.apply(null, this.collection.pluck("weight"));
 }
 
-KeyNumbersPresenter.prototype.get1RM = function() {
+StatsPresenter.prototype.get1RM = function() {
 	var max = this.getMaxWeight(), 
 		reps = 5;
 	// Epley Formula

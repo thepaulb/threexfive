@@ -187,22 +187,23 @@
 					App.fetchWorkoutExercises();
 				};				
 				// create new routine (i.e individual workout) ..
-				var workout = new Workout({ userId: userId, date: now, routineId: C.routines.findWhere({name: next}).get("id") });
+				var workout = new Workout({ userId: userId, date: now, day: now.getDate(), month: now.getMonth()+1, year: now.getFullYear(), routineId: C.routines.findWhere({name: next}).get("id") });
 				C.workouts.add(workout);
 				workout.save();				
 				// .. grab all the exercises for this new routine;
 				C.workoutExercises.where({routineId: workout.get("routineId")}).forEach(function createSets (ex1) {
 					var ex2 = C.exercises.where({"id": ex1.get("exerciseId")});
 					for (var 	i = 0, 
-										ex = ex2[0], 
-										setTotal = parseInt(ex.get("sets")); i < setTotal; i++) {
+								ex = ex2[0], 
+								setTotal = parseInt(ex.get("sets")); i < setTotal; i++) {
 						// update new wieght, but only on the first pass;
 						if (i === 0) {
 							// console.log(ex.get('label'), parseFloat(ex.get("weight")), parseFloat(ex.get("increment")), arguments)
 							ex.set("weight", parseFloat(ex.get("weight")) + parseFloat(ex.get("increment")));
+							ex.save();
 						}
 						// // console.log(ex.toJSON());
-						var set = new Set({exercises: App.Collections.exercises})
+						var set = new Set({exercises: C.exercises})
 						set.set({
 									"exerciseId": 		ex.get("id"),
 									"numberOfReps": 	ex.get("defaultReps"),
@@ -216,9 +217,8 @@
 					date,
 					workout,
 					workoutId = _.uniq(c.pluck("workoutId")).pop();
-				workout =C.workouts.findWhere({id: workoutId});
-				date = workout.get("date");
-	      		$("#main").html(new WorkoutView({collection: c, date: date, workout: workout}).render().el);
+				workout = C.workouts.findWhere({id: workoutId});
+	      		$("#main").html(new WorkoutView({collection: c, workout: workout}).render().el);
 			});
 		};
 	

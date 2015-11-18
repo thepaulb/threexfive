@@ -1,7 +1,7 @@
 body {
 	margin: 0;
 	font-family: 'Helvetica Neue';
-	background: black;
+	background: #222;
 	color: white;
 }
 
@@ -101,6 +101,10 @@ h2 {
   font-size: 20px;
 }
 
+.date-input > input {
+  width: 30%;
+}
+
 /**********************************************************
     header
 **********************************************************/
@@ -111,6 +115,9 @@ header {
     z-index:250;
     -webkit-box-sizing:border-box; box-sizing:border-box;
     left:0; right:0;
+    -webkit-box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.5);
+    -moz-box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.5);
+    box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.5);
     background: #222;
     
 } /* This is masthead bar that appears at the top of the UI */
@@ -161,7 +168,10 @@ main {
 .slideout-panel {
   position:relative;
   z-index: 1;
-  background: black;
+  background: #222;
+  -webkit-box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.5);
+    -moz-box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.5);
+    box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.5);
 }
 
 .slideout-open,
